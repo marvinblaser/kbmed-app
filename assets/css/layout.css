@@ -1,3 +1,4 @@
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 240px;
   background: linear-gradient(180deg, #0d1b2a, #1b263b);
@@ -37,12 +38,34 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* ===== MAIN CONTENT ===== */
 .main-content {
   margin-left: 240px;
   padding: 20px;
+  transition: margin-left 0.3s ease;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 200px;
+  }
 }
 
 @media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+    width: 220px;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
   .main-content {
     margin-left: 0;
   }

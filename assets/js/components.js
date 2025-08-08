@@ -1,20 +1,23 @@
 import { auth } from "./firebase.js";
-import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  signOut,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 export function loadComponent(id, file) {
   fetch(file)
-    .then(res => {
+    .then((res) => {
       if (!res.ok) throw new Error(`Erreur chargement : ${file}`);
       return res.text();
     })
-    .then(html => {
+    .then((html) => {
       const container = document.getElementById(id);
       if (!container) return;
       container.innerHTML = html;
 
       if (file.includes("sidebar.html")) {
         const currentPath = window.location.pathname;
-        container.querySelectorAll(".nav-link").forEach(link => {
+        container.querySelectorAll(".nav-link").forEach((link) => {
           if (link.getAttribute("href") === currentPath) {
             link.classList.add("active");
           }
@@ -25,7 +28,7 @@ export function loadComponent(id, file) {
         initHeaderEvents();
       }
     })
-    .catch(err => console.error(err));
+    .catch((err) => console.error(err));
 }
 
 function initHeaderEvents() {
@@ -83,9 +86,29 @@ function initHeaderEvents() {
     });
   }
 
-  if (burgerMenu && sidebar) {
-    burgerMenu.addEventListener("click", () => {
-      sidebar.classList.toggle("hidden");
-    });
-  }
+if (burgerMenu && sidebar) {
+  // Ouvrir / fermer au clic sur le burger
+  burgerMenu.addEventListener("click", (e) => {
+    e.stopPropagation(); // Empêche le clic de se propager
+    sidebar.classList.toggle("show");
+  });
+
+  // Fermer si on clique sur un lien
+  sidebar.addEventListener("click", (e) => {
+    if (e.target.classList.contains("nav-link")) {
+      sidebar.classList.remove("show");
+    }
+  });
+
+  // Fermer si on clique en dehors
+  document.addEventListener("click", (e) => {
+    if (
+      sidebar.classList.contains("show") &&
+      !sidebar.contains(e.target) &&
+      !burgerMenu.contains(e.target)
+    ) {
+      sidebar.classList.remove("show");
+    }
+  });
+}
 }
