@@ -18,17 +18,15 @@ export function loadComponent(id, file) {
         const sidebar = document.querySelector(".sidebar");
         const overlay = document.getElementById("sidebarOverlay");
 
-        if (burgerBtn && sidebar && overlay) {
-    burgerBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("active");
-      overlay.classList.toggle("active");
-    });
+        burgerBtn.addEventListener("click", () => {
+          sidebar.classList.toggle("active");
+          overlay.classList.toggle("active");
+        });
 
         overlay.addEventListener("click", () => {
           sidebar.classList.remove("active");
           overlay.classList.remove("active");
         });
-    }
       }
     });
 }
