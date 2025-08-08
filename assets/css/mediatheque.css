@@ -66,3 +66,7 @@
   margin: 0 5px;
   opacity: 0.6;
 }
+
+.popup{
+    display: none;
+}
