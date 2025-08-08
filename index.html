@@ -3,121 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chargement...</title>
-  <link rel="stylesheet" href="/assets/css/style.css" />
-  <style>
-    body {
-      margin: 0;
-      background: #0d1b2a;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .loader {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      width: 250px;
-    }
-    .spinner {
-      border: 6px solid rgba(255, 255, 255, 0.2);
-      border-top: 6px solid #00d4ff;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .loading-text {
-      font-size: 1.2em;
-      letter-spacing: 1px;
-      max-width: 250px;
-      transition: opacity 0.3s ease;
-      margin-bottom: 15px;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .progress {
-      height: 100%;
-      width: 0%;
-      background: #00d4ff;
-      animation: progressAnim 3s linear forwards;
-    }
-    @keyframes progressAnim {
-      0% { width: 0%; }
-      100% { width: 100%; }
-    }
-  </style>
+  <title>Outil Interne</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
-  <div class="loader">
-    <div class="spinner"></div>
-    <div class="loading-text" id="loadingMessage">Chargement...</div>
-    <div class="progress-bar">
-      <div class="progress"></div>
-    </div>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <div id="header"></div>
+    <h2>Bienvenue sur l'outil interne</h2>
+    <p>Utilisez le menu pour naviguer.</p>
+    <div id="footer"></div>
   </div>
 
   <script type="module">
-    import { auth } from "/assets/js/firebase-config.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    // Liste de messages
-    const messages = [
-      "Préparation des outils...",
-      "Connexion sécurisée...",
-      "Chargement des données...",
-      "Vérification de votre session...",
-      "Initialisation de l'application...",
-      "Mise en place de l'environnement...",
-      "Récupération des informations...",
-      "Optimisation des performances..."
-    ];
-
-    const messageElement = document.getElementById("loadingMessage");
-
-    // Message initial aléatoire
-    let currentIndex = Math.floor(Math.random() * messages.length);
-    messageElement.textContent = messages[currentIndex];
-
-    // Changer de message toutes les 2 secondes
-    const messageInterval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % messages.length;
-      messageElement.style.opacity = 0;
-      setTimeout(() => {
-        messageElement.textContent = messages[currentIndex];
-        messageElement.style.opacity = 1;
-      }, 300);
-    }, 2000);
-
-    const startTime = Date.now();
-
-    onAuthStateChanged(auth, (user) => {
-      const elapsed = Date.now() - startTime;
-      const delay = Math.max(1000 - elapsed, 0); // minimum 1s
-
-      setTimeout(() => {
-        clearInterval(messageInterval);
-        if (user) {
-          window.location.href = "/pages/accueil.html";
-        } else {
-          window.location.href = "/pages/login.html";
-        }
-      }, delay);
-    });
+    import { loadComponent } from "assets/js/components.js";
+    loadComponent("sidebar", "components/sidebar.html");
+    loadComponent("header", "components/header.html");
+    loadComponent("footer", "components/footer.html");
   </script>
+  <script type="module" src="assets/js/theme.js"></script>
 </body>
 </html>

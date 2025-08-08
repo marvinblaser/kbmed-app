@@ -1,46 +1,29 @@
 <header class="main-header">
   <h1>Outil Interne</h1>
   <div class="user-info">
-    <!-- Bouton mode sombre -->
     <button id="themeToggleBtn">
       <span class="theme-icon">🌙</span>
       <span class="theme-text">Mode sombre</span>
     </button>
-
-    <!-- Email utilisateur -->
-    <span id="userEmail" style="font-weight: 500;"></span>
-
-    <!-- Bouton déconnexion -->
+    <span id="userEmail"></span>
     <button id="logoutBtn" class="danger">Déconnexion</button>
   </div>
 </header>
 
 <script type="module">
-  import { auth } from "/assets/js/firebase-config.js";
+  import { auth } from "assets/js/firebase-config.js";
   import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // Afficher l'email utilisateur
   onAuthStateChanged(auth, (user) => {
     const emailSpan = document.getElementById("userEmail");
     if (user) {
       emailSpan.textContent = user.email;
-    } else {
-      emailSpan.textContent = "";
     }
   });
 
-  // Déconnexion
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth)
-        .then(() => {
-          window.location.href = "/pages/login.html";
-        })
-        .catch((error) => {
-          console.error("Erreur de déconnexion :", error);
-          alert("Impossible de se déconnecter. Réessayez.");
-        });
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "pages/login.html";
     });
-  }
+  });
 </script>

@@ -1,36 +1,9 @@
-/* ====== Thème clair ====== */
-body {
-  background: #f5f6fa;
-  color: #333;
-}
-
-.sidebar {
-  background: linear-gradient(180deg, #0d1b2a, #1b263b);
-}
-
-.main-header {
-  background: white;
-  color: #333;
-}
-
-.main-footer {
-  color: #777;
-}
-
-.gallery-item {
-  background: white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.popup-content {
-  background: white;
-  color: #333;
-}
-
-.nav-link {
-  color: white;
-}
-
-.nav-link.active {
-  background: rgba(255, 255, 255, 0.2);
+:root {
+  --bg-light: #f5f6fa;
+  --text-light: #333;
+  --card-light: white;
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --danger-color: #e63946;
+  --danger-hover: #d62828;
 }

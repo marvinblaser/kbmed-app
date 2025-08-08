@@ -1,41 +1,26 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head id="head">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/assets/css/style.css" />
+  <title>Accueil</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>
   <aside class="sidebar" id="sidebar"></aside>
   <div class="main-content">
     <div id="header"></div>
-    <main>
-      <h2>Bienvenue sur l'outil interne</h2>
-      <p>Utilisez le menu à gauche pour accéder aux fonctionnalités.</p>
-    </main>
+    <h2>Bienvenue sur l'outil interne</h2>
+    <p>Utilisez le menu pour naviguer vers les différentes sections.</p>
     <div id="footer"></div>
   </div>
 
   <script type="module">
-    import { loadComponent } from "/assets/js/components.js";
-    import { auth } from "/assets/js/firebase-config.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    // Charger les composants
-    // loadComponent("head", "head.html");
-    loadComponent("sidebar", "sidebar.html");
-    loadComponent("header", "header.html");
-    loadComponent("footer", "footer.html");
-
-    // Vérifier si l'utilisateur est connecté
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "/pages/login.html";
-      } else {
-        document.getElementById("userEmail").textContent = user.email;
-      }
-    });
+    import { loadComponent } from "../assets/js/components.js";
+    loadComponent("sidebar", "../components/sidebar.html");
+    loadComponent("header", "../components/header.html");
+    loadComponent("footer", "../components/footer.html");
   </script>
-  <script type="module" src="/assets/js/theme.js"></script>
+  <script type="module" src="../assets/js/theme.js"></script>
 </body>
 </html>

@@ -1,19 +1,7 @@
-/* ====== CSS centralisateur ====== */
-
-/* Styles de base et reset */
-@import url("/assets/css/base.css");
-
-/* Structure générale (sidebar, header, footer) */
-@import url("/assets/css/layout.css");
-
-/* Composants réutilisables (boutons, popup, breadcrumb) */
-@import url("/assets/css/components.css");
-
-/* Styles spécifiques à la Médiathèque */
-@import url("/assets/css/mediatheque.css");
-
-/* Responsive (mobile/tablette) */
-@import url("/assets/css/responsive.css");
-
-/* Thème clair par défaut */
-@import url("/assets/css/theme-light.css");
+/* Fichier centralisateur */
+@import url("base.css");
+@import url("layout.css");
+@import url("components.css");
+@import url("mediatheque.css");
+@import url("responsive.css");
+@import url("theme-light.css");

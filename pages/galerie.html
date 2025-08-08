@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head id="head">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/assets/css/style.css" />
+  <title>Médiathèque</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>
   <aside class="sidebar" id="sidebar"></aside>
@@ -11,11 +12,9 @@
     <div id="header"></div>
 
     <h2>Médiathèque</h2>
-
     <div class="mediatheque-controls">
       <button id="uploadChoiceBtn">Uploader</button>
       <button id="createFolderBtn">Créer dossier</button>
-      <button id="goBackBtn" style="display:none;">⬅ Retour</button>
       <button id="selectAllBtn" style="display:none;">Tout sélectionner</button>
       <button id="deleteSelectedBtn" style="display:none;">🗑 Supprimer la sélection</button>
       <span id="selectionCount" style="margin-left:10px; font-weight:bold; display:none;"></span>
@@ -35,24 +34,19 @@
     <input type="file" id="fileInput" multiple style="display:none;">
     <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 
-    <!-- Breadcrumb -->
     <div id="breadcrumb" class="breadcrumb"></div>
-
-    <!-- Galerie -->
     <div id="gallery" class="gallery"></div>
 
     <div id="footer"></div>
   </div>
 
   <script type="module">
-    import { loadComponent } from "/assets/js/components.js";
-    loadComponent("sidebar", "sidebar.html");
-    loadComponent("header", "header.html");
-    loadComponent("footer", "footer.html");
+    import { loadComponent } from "../assets/js/components.js";
+    loadComponent("sidebar", "../components/sidebar.html");
+    loadComponent("header", "../components/header.html");
+    loadComponent("footer", "../components/footer.html");
   </script>
-
-  <!-- Script Médiathèque -->
-  <script type="module" src="/assets/js/mediatheque.js"></script>
-  <script type="module" src="/assets/js/theme.js"></script>
+  <script type="module" src="../assets/js/theme.js"></script>
+  <script type="module" src="../assets/js/mediatheque.js"></script>
 </body>
 </html>
