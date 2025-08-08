@@ -1,4 +1,3 @@
-/* Sidebar fixe */
 .sidebar {
   width: 240px;
   background: linear-gradient(180deg, #0d1b2a, #1b263b);
@@ -8,6 +7,12 @@
   left: 0;
   top: 0;
   padding-top: 20px;
+  transition: transform 0.3s ease;
+  z-index: 2000;
+}
+
+.sidebar.hidden {
+  transform: translateX(-100%);
 }
 
 .logo {
@@ -21,7 +26,6 @@
   display: block;
   padding: 14px 20px;
   color: var(--text-color);
-  text-decoration: none;
   transition: background 0.2s ease;
 }
 
@@ -33,8 +37,13 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Contenu principal */
 .main-content {
   margin-left: 240px;
   padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
 }

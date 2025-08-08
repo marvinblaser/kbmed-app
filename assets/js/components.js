@@ -1,4 +1,4 @@
-import { auth } from "./firebase-config.js";
+import { auth } from "./firebase.js";
 import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 export function loadComponent(id, file) {
@@ -12,7 +12,6 @@ export function loadComponent(id, file) {
       if (!container) return;
       container.innerHTML = html;
 
-      // Si on charge la sidebar → lien actif
       if (file.includes("sidebar.html")) {
         const currentPath = window.location.pathname;
         container.querySelectorAll(".nav-link").forEach(link => {
@@ -22,7 +21,6 @@ export function loadComponent(id, file) {
         });
       }
 
-      // Si on charge le header → attacher les événements
       if (file.includes("header.html")) {
         initHeaderEvents();
       }
@@ -34,15 +32,15 @@ function initHeaderEvents() {
   const logoutBtn = document.getElementById("logoutBtn");
   const emailSpan = document.getElementById("userEmail");
   const themeToggleBtn = document.getElementById("themeToggleBtn");
+  const burgerMenu = document.getElementById("burgerMenu");
+  const sidebar = document.getElementById("sidebar");
 
-  // Afficher l'email utilisateur
   onAuthStateChanged(auth, (user) => {
     if (user) {
       emailSpan.textContent = user.email;
     }
   });
 
-  // Déconnexion
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       signOut(auth)
@@ -56,9 +54,7 @@ function initHeaderEvents() {
     });
   }
 
-  // Mode sombre
   if (themeToggleBtn) {
-    // Appliquer le thème sauvegardé
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark-mode");
     }
@@ -84,6 +80,12 @@ function initHeaderEvents() {
         document.body.classList.contains("dark-mode") ? "dark" : "light"
       );
       updateThemeButton();
+    });
+  }
+
+  if (burgerMenu && sidebar) {
+    burgerMenu.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
     });
   }
 }

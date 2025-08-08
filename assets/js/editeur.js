@@ -1,4 +1,4 @@
-import { auth, storage } from "./firebase-config.js";
+import { auth, storage } from "./firebase.js";
 import {
   signOut,
   onAuthStateChanged
@@ -170,3 +170,15 @@ document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
       });
     });
 });
+
+// Message d'accueil dans le canvas vide
+function drawWelcomeMessage() {
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#888";
+  ctx.font = "20px Segoe UI";
+  ctx.textAlign = "center";
+  ctx.fillText("Glissez-déposez une image ou utilisez les boutons ci-dessus", canvas.width / 2, canvas.height / 2);
+}
+
+// Afficher le message au démarrage
+drawWelcomeMessage();

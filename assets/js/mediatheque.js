@@ -1,4 +1,4 @@
-import { auth, storage } from "./firebase-config.js";
+import { auth, storage } from "./firebase.js";
 import {
   ref,
   uploadBytes,

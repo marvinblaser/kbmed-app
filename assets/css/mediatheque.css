@@ -12,11 +12,17 @@
 }
 
 .gallery-item {
-  background: var(--card-light, white);
+  background: var(--card-bg, white);
   border-radius: 10px;
   padding: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .gallery-item img,
@@ -33,9 +39,9 @@
   font-weight: 500;
 }
 
-/* Popup masqué par défaut */
+/* Popup */
 .popup {
-  display: none; /* ✅ Masqué au chargement */
+  display: none;
   position: fixed;
   z-index: 2000;
   left: 0;
@@ -43,14 +49,20 @@
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.5);
+  animation: fadeIn 0.3s ease;
 }
 
 .popup-content {
-  background: var(--card-light, white);
+  background: var(--card-bg, white);
   padding: 20px;
   border-radius: 8px;
   max-width: 300px;
   margin: 15% auto;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
