@@ -36,8 +36,7 @@ function loadImageFromFirebase() {
   getDownloadURL(fileRef).then((url) => {
     fabric.Image.fromURL(url, (img) => {
       img.scaleToWidth(800);
-      canvas.add(img);
-      saveState();
+      setImageAsBackground(img);
     }, { crossOrigin: "anonymous" });
   });
 }
@@ -49,8 +48,7 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
   reader.onload = (f) => {
     fabric.Image.fromURL(f.target.result, (img) => {
       img.scaleToWidth(800);
-      canvas.add(img);
-      saveState();
+      setImageAsBackground(img);
     });
   };
   reader.readAsDataURL(file);
@@ -63,8 +61,7 @@ document.getElementById("cameraInput").addEventListener("change", (e) => {
   reader.onload = (f) => {
     fabric.Image.fromURL(f.target.result, (img) => {
       img.scaleToWidth(800);
-      canvas.add(img);
-      saveState();
+      setImageAsBackground(img);
     });
   };
   reader.readAsDataURL(file);
@@ -182,3 +179,11 @@ function drawWelcomeMessage() {
 
 // Afficher le message au démarrage
 drawWelcomeMessage();
+
+function setImageAsBackground(img) {
+  img.selectable = false; // Empêche de déplacer l'image
+  img.evented = false; // Empêche toute interaction
+  canvas.add(img);
+  canvas.sendToBack(img); // Envoie l'image derrière tout
+  saveState();
+}

@@ -1,68 +1,68 @@
 .mediatheque-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 15px;
+  background: var(--card-bg);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .gallery-item {
-  background: var(--card-bg, white);
+  background: var(--card-bg);
   border-radius: 10px;
-  padding: 10px;
+  overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  text-align: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
 .gallery-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
 }
 
-.gallery-item img,
-.gallery-item svg {
+.gallery-item img {
   width: 100%;
-  height: 150px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 6px;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
 }
 
 .gallery-item p {
-  margin: 10px 0;
-  font-size: 0.9em;
+  padding: 8px;
+  font-size: 0.9rem;
   font-weight: 500;
-}
-
-/* Popup */
-.popup {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  animation: fadeIn 0.3s ease;
-}
-
-.popup-content {
-  background: var(--card-bg, white);
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 300px;
-  margin: 15% auto;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.gallery-item button {
+  margin: 5px;
+  font-size: 0.8rem;
+}
+
+.breadcrumb {
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.breadcrumb span {
+  cursor: pointer;
+  color: var(--primary-color);
+}
+
+.breadcrumb .separator {
+  margin: 0 5px;
+  opacity: 0.6;
 }
