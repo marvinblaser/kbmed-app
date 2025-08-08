@@ -1,9 +1,21 @@
 body.dark-mode {
-  --bg-light: #1e1e1e;
-  --text-light: #e0e0e0;
-  --card-light: #2c2c2c;
+  --bg-color: #1e1e1e;
+  --text-color: #e0e0e0;
+  --card-bg: #2c2c2c;
   --primary-color: #4dabf7;
   --primary-hover: #339af0;
   --danger-color: #ff6b6b;
   --danger-hover: #fa5252;
+}
+
+body.dark-mode {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+body.dark-mode .main-header,
+body.dark-mode .main-footer,
+body.dark-mode .sidebar,
+body.dark-mode .gallery-item {
+  background: var(--card-bg);
 }

@@ -1,7 +1,6 @@
-/* Fichier centralisateur */
 @import url("base.css");
 @import url("layout.css");
 @import url("components.css");
 @import url("mediatheque.css");
-@import url("responsive.css");
 @import url("theme-light.css");
+@import url("theme-dark.css");

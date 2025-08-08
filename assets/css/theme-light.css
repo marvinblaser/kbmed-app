@@ -1,9 +1,21 @@
 :root {
-  --bg-light: #f5f6fa;
-  --text-light: #333;
-  --card-light: white;
+  --bg-color: #f5f6fa;
+  --text-color: #333;
+  --card-bg: white;
   --primary-color: #007bff;
   --primary-hover: #0056b3;
   --danger-color: #e63946;
   --danger-hover: #d62828;
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.main-header,
+.main-footer,
+.sidebar,
+.gallery-item {
+  background: var(--card-bg);
 }
