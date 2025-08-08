@@ -13,6 +13,31 @@ const urlParams = new URLSearchParams(window.location.search);
 const filePath = urlParams.get("path");
 
 const canvas = new fabric.Canvas("canvas");
+function resizeCanvas() {
+  const containerWidth = document.querySelector(".main-content").offsetWidth;
+
+  const header = document.querySelector(".main-header");
+  const toolbar = document.querySelector(".toolbar");
+  const footer = document.querySelector(".main-footer");
+
+  const headerHeight = header ? header.offsetHeight : 0;
+  const toolbarHeight = toolbar ? toolbar.offsetHeight : 0;
+  const footerHeight = footer ? footer.offsetHeight : 0;
+
+  const availableHeight = window.innerHeight - headerHeight - toolbarHeight - footerHeight - 40;
+
+  const scale = containerWidth / 800; // largeur originale
+  const zoom = Math.min(scale, availableHeight / 600); // hauteur originale
+
+  canvas.setWidth(containerWidth);
+  canvas.setHeight(600 * zoom);
+  canvas.setZoom(zoom);
+}
+
+window.addEventListener("resize", resizeCanvas);
+
+// Attendre que les composants soient chargés
+setTimeout(resizeCanvas, 300);
 let state = [];
 let mods = 0;
 let cropRect;

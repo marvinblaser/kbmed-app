@@ -3,23 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Outil Interne</title>
+  <title>Chargement...</title>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    /* Écran de chargement plein écran */
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-color, #f5f6fa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    #loader {
+      text-align: center;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(0,0,0,0.1);
+      border-top: 5px solid var(--primary-color, #007bff);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    .loader-text {
+      font-size: 1.1rem;
+      color: var(--text-color, #333);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <aside class="sidebar" id="sidebar"></aside>
-  <div class="main-content">
-    <div id="header"></div>
-    <h2>Bienvenue sur l'outil interne</h2>
-    <p>Utilisez le menu pour naviguer.</p>
-    <div id="footer"></div>
+  <div id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text">Chargement...</div>
   </div>
 
-  <script type="module">
-    import { loadComponent } from "./assets/js/components.js";
-    loadComponent("sidebar", "components/sidebar.html");
-    loadComponent("header", "components/header.html");
-    loadComponent("footer", "components/footer.html");
+  <script>
+    // Forcer un minimum de 1 seconde avant redirection
+    setTimeout(() => {
+      window.location.href = "pages/accueil.html";
+    }, 1000);
   </script>
 </body>
 </html>
