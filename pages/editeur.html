@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head id="head">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <div id="header"></div>
+
+    <h2>Éditeur d'images</h2>
+    <div class="toolbar">
+      <div class="toolbar">
+      <input type="file" id="fileInput" accept="image/*" />
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" />
+      <button id="addTextBtn">Ajouter texte</button>
+      <input type="color" id="bgColorPicker" value="#ffff00" />
+      <button id="undoBtn">↩ Annuler</button>
+      <button id="redoBtn">↪ Rétablir</button>
+      <button id="cropBtn">Rogner</button>
+      <button id="deleteBtn">Supprimer</button>
+      <button id="downloadBtn">Télécharger</button>
+      <button id="saveFirebaseBtn">💾 Enregistrer</button>
+    </div>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <div id="footer"></div>
+  </div>
+
+  <script type="module">
+    import { loadComponent } from "/assets/js/components.js";
+    // loadComponent("head", "head.html");
+    loadComponent("sidebar", "sidebar.html");
+    loadComponent("header", "header.html");
+    loadComponent("footer", "footer.html");
+  </script>
+
+  <script type="module" src="/assets/js/theme.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+  <script type="module" src="/assets/js/editeur.js"></script>
+</body>
+</html>

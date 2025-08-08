@@ -1,0 +1,30 @@
+<!-- Meta -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- Titre dynamique -->
+<title id="pageTitle">KB Med App</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="/assets/img/favicon.png" />
+
+<!-- Script pour définir le titre automatiquement -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const titles = {
+      "/pages/accueil.html": "Accueil - Outil Interne",
+      "/pages/galerie.html": "Médiathèque - Outil Interne",
+      "/pages/editeur.html": "Éditeur d'images - Outil Interne",
+      "/pages/login.html": "Connexion - Outil Interne"
+    };
+
+    const currentPath = window.location.pathname;
+    const pageTitle = document.getElementById("pageTitle");
+
+    if (titles[currentPath]) {
+      pageTitle.textContent = titles[currentPath];
+    } else {
+      pageTitle.textContent = "Outil Interne";
+    }
+  });
+</script>
