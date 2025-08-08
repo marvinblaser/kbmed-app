@@ -1,11 +1,15 @@
 export function loadComponent(id, file) {
   fetch(file)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error(`Erreur chargement : ${file}`);
+      return res.text();
+    })
     .then(html => {
       const container = document.getElementById(id);
       if (!container) return;
       container.innerHTML = html;
 
+      // Si on charge la sidebar
       if (file.includes("sidebar.html")) {
         const currentPath = window.location.pathname;
         container.querySelectorAll(".nav-link").forEach(link => {
@@ -14,23 +18,25 @@ export function loadComponent(id, file) {
           }
         });
 
-        if (file.includes("sidebar.html")) {
-  const burgerBtn = document.getElementById("burgerBtn");
-  const sidebar = document.querySelector(".sidebar");
-  const overlay = document.getElementById("sidebarOverlay");
+        // Gestion du menu burger
+        const burgerBtn = document.getElementById("burgerBtn");
+        const sidebar = document.querySelector(".sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
 
-  if (burgerBtn && sidebar && overlay) {
-    burgerBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("active");
-      overlay.classList.toggle("active");
-    });
+        if (burgerBtn && sidebar && overlay) {
+          // Ouvrir/fermer la sidebar
+          burgerBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+            overlay.classList.toggle("active");
+          });
 
-    overlay.addEventListener("click", () => {
-      sidebar.classList.remove("active");
-      overlay.classList.remove("active");
-    });
-  }
-}
+          // Fermer la sidebar en cliquant sur l’overlay
+          overlay.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            overlay.classList.remove("active");
+          });
+        }
       }
-    });
+    })
+    .catch(err => console.error(err));
 }
