@@ -207,7 +207,29 @@ document.getElementById("cropBtn").addEventListener("click", () => {
 
 // 🔹 Télécharger
 document.getElementById("downloadBtn").addEventListener("click", () => {
-  const dataURL = canvas.toDataURL({ format: "png" });
+  // Trouver l'image de fond (premier objet du canvas)
+  const bgImage = canvas.getObjects()[0];
+  if (!bgImage) {
+    alert("Aucune image à télécharger !");
+    return;
+  }
+
+  // Récupérer les dimensions réelles de l'image
+  const left = bgImage.left || 0;
+  const top = bgImage.top || 0;
+  const width = bgImage.width * bgImage.scaleX;
+  const height = bgImage.height * bgImage.scaleY;
+
+  // Exporter uniquement la zone de l'image
+  const dataURL = canvas.toDataURL({
+    format: "png",
+    left: left,
+    top: top,
+    width: width,
+    height: height
+  });
+
+  // Télécharger
   const a = document.createElement("a");
   a.href = dataURL;
   a.download = "image.png";
