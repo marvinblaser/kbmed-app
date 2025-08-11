@@ -202,7 +202,7 @@ document.getElementById("cropBtn").addEventListener("click", () => {
   }
 });
 
-// 🔹 Fonction pour exporter sans marges
+// 🔹 Exporter sans marges (attend que tout soit chargé)
 function exportWithoutBorders(callback) {
   const bgImage = canvas.getObjects()[0];
   if (!bgImage) {
@@ -215,7 +215,8 @@ function exportWithoutBorders(callback) {
 
   const tempCanvas = new fabric.Canvas(null, { width, height });
 
-  let objectsToLoad = canvas.getObjects().length;
+  let pending = canvas.getObjects().length;
+
   canvas.getObjects().forEach((obj) => {
     if (obj.type === "image" && obj.getSrc) {
       fabric.Image.fromURL(obj.getSrc(), (img) => {
@@ -226,14 +227,16 @@ function exportWithoutBorders(callback) {
           scaleY: obj.scaleY
         });
         tempCanvas.add(img);
-        if (--objectsToLoad === 0) callback(tempCanvas);
+        pending--;
+        if (pending === 0) callback(tempCanvas);
       }, { crossOrigin: "anonymous" });
     } else {
       obj.clone((cloned) => {
         cloned.left = (cloned.left || 0) - (bgImage.left || 0);
         cloned.top = (cloned.top || 0) - (bgImage.top || 0);
         tempCanvas.add(cloned);
-        if (--objectsToLoad === 0) callback(tempCanvas);
+        pending--;
+        if (pending === 0) callback(tempCanvas);
       });
     }
   });
