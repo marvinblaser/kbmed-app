@@ -14,56 +14,6 @@ const filePath = urlParams.get("path");
 const canvas = new fabric.Canvas("canvas");
 let state = [];
 let mods = 0;
-let cropRect;
-let cropping = false;
-
-// 🔹 Message d'accueil
-function drawWelcomeMessage() {
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#888";
-  ctx.font = "20px Segoe UI";
-  ctx.textAlign = "center";
-  ctx.fillText(
-    "Glissez-déposez une image ou utilisez les boutons ci-dessus",
-    canvas.width / 2,
-    canvas.height / 2
-  );
-}
-drawWelcomeMessage();
-
-// 🔹 Redimensionner le canvas à la taille de l'image
-function resizeCanvasToImage(img) {
-  const imgWidth = img.width;
-  const imgHeight = img.height;
-
-  canvas.setWidth(imgWidth);
-  canvas.setHeight(imgHeight);
-
-  img.set({ left: 0, top: 0 });
-
-  const maxWidth = document.querySelector(".main-content").offsetWidth - 20;
-  const maxHeight =
-    window.innerHeight -
-    document.querySelector(".main-header").offsetHeight -
-    150;
-
-  let zoom = 1;
-  if (imgWidth > maxWidth || imgHeight > maxHeight) {
-    zoom = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
-  }
-
-  canvas.setZoom(zoom);
-}
-
-// 🔹 Mettre l'image en arrière-plan
-function setImageAsBackground(img) {
-  img.selectable = false;
-  img.evented = false;
-  resizeCanvasToImage(img);
-  canvas.add(img);
-  canvas.sendToBack(img);
-  saveState();
-}
 
 // 🔹 Sauvegarder l'état
 function saveState() {
@@ -71,17 +21,26 @@ function saveState() {
   state.push(JSON.stringify(canvas));
 }
 
-// 🔹 Charger depuis Firebase
+// 🔹 Redimensionner le canvas à l'image
+function resizeCanvasToImage(img) {
+  canvas.setWidth(img.width);
+  canvas.setHeight(img.height);
+  img.set({ left: 0, top: 0 });
+  canvas.setZoom(1);
+}
+
+// 🔹 Charger une image depuis Firebase
 function loadImageFromFirebase() {
   const fileRef = ref(storage, filePath);
   getDownloadURL(fileRef).then((url) => {
-    fabric.Image.fromURL(
-      url,
-      (img) => {
-        setImageAsBackground(img);
-      },
-      { crossOrigin: "anonymous" }
-    );
+    fabric.Image.fromURL(url, (img) => {
+      img.selectable = false;
+      img.evented = false;
+      resizeCanvasToImage(img);
+      canvas.add(img);
+      canvas.sendToBack(img);
+      saveState();
+    }, { crossOrigin: "anonymous" });
   });
 }
 
@@ -101,7 +60,12 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
   const reader = new FileReader();
   reader.onload = (f) => {
     fabric.Image.fromURL(f.target.result, (img) => {
-      setImageAsBackground(img);
+      img.selectable = false;
+      img.evented = false;
+      resizeCanvasToImage(img);
+      canvas.add(img);
+      canvas.sendToBack(img);
+      saveState();
     });
   };
   reader.readAsDataURL(file);
@@ -114,7 +78,12 @@ document.getElementById("cameraInput").addEventListener("change", (e) => {
   const reader = new FileReader();
   reader.onload = (f) => {
     fabric.Image.fromURL(f.target.result, (img) => {
-      setImageAsBackground(img);
+      img.selectable = false;
+      img.evented = false;
+      resizeCanvasToImage(img);
+      canvas.add(img);
+      canvas.sendToBack(img);
+      saveState();
     });
   };
   reader.readAsDataURL(file);
@@ -124,8 +93,8 @@ document.getElementById("cameraInput").addEventListener("change", (e) => {
 document.getElementById("addTextBtn").addEventListener("click", () => {
   const bgColor = document.getElementById("bgColorPicker").value;
   const text = new fabric.IText("Texte ici", {
-    left: 100,
-    top: 100,
+    left: 50,
+    top: 50,
     fontSize: 20,
     backgroundColor: bgColor
   });
@@ -163,55 +132,15 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
   }
 });
 
-// 🔹 Rogner
-document.getElementById("cropBtn").addEventListener("click", () => {
-  if (!cropping) {
-    cropRect = new fabric.Rect({
-      fill: "rgba(0,0,0,0.3)",
-      originX: "left",
-      originY: "top",
-      stroke: "#ccc",
-      strokeDashArray: [2, 2],
-      opacity: 1,
-      width: 200,
-      height: 200,
-      borderColor: "red",
-      cornerColor: "green",
-      hasRotatingPoint: false
-    });
-    canvas.add(cropRect);
-    cropping = true;
-  } else {
-    const left = cropRect.left;
-    const top = cropRect.top;
-    const width = cropRect.width * cropRect.scaleX;
-    const height = cropRect.height * cropRect.scaleY;
-
-    const cropped = canvas.toDataURL({
-      left: left,
-      top: top,
-      width: width,
-      height: height
-    });
-
-    fabric.Image.fromURL(cropped, (img) => {
-      setImageAsBackground(img);
-    });
-
-    cropping = false;
-  }
-});
-
-// 🔹 Exporter tout le contenu visible (avec ou sans image)
-function exportWithoutBorders() {
-  return new Promise((resolve, reject) => {
+// 🔹 Calculer la zone englobante et exporter
+function exportCanvas() {
+  return new Promise((resolve) => {
     const objects = canvas.getObjects();
     if (objects.length === 0) {
-      reject("Aucun contenu à exporter !");
+      alert("Aucun contenu à exporter !");
       return;
     }
 
-    // Calculer la zone englobante de tous les objets
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     objects.forEach((obj) => {
       const bounds = obj.getBoundingRect();
@@ -256,20 +185,18 @@ function exportWithoutBorders() {
 
 // 🔹 Télécharger
 document.getElementById("downloadBtn").addEventListener("click", () => {
-  exportWithoutBorders()
-    .then((tempCanvas) => {
-      const dataURL = tempCanvas.toDataURL({ format: "png" });
-      const a = document.createElement("a");
-      a.href = dataURL;
-      a.download = "image.png";
-      a.click();
-    })
-    .catch((err) => alert(err));
+  exportCanvas().then((tempCanvas) => {
+    const dataURL = tempCanvas.toDataURL({ format: "png" });
+    const a = document.createElement("a");
+    a.href = dataURL;
+    a.download = "image.png";
+    a.click();
+  });
 });
 
 // 🔹 Enregistrer dans Firebase
 document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
-  exportWithoutBorders()
+  exportCanvas()
     .then((tempCanvas) => {
       const dataURL = tempCanvas.toDataURL({ format: "png" });
       return fetch(dataURL).then((res) => res.blob());
@@ -281,6 +208,5 @@ document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
     .then(() => {
       alert("Image enregistrée dans Firebase !");
       window.location.href = "galerie.html";
-    })
-    .catch((err) => alert(err));
+    });
 });
