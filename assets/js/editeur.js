@@ -202,11 +202,11 @@ document.getElementById("cropBtn").addEventListener("click", () => {
   }
 });
 
-// 🔹 Télécharger sans marges
-document.getElementById("downloadBtn").addEventListener("click", () => {
+// 🔹 Fonction pour exporter sans marges
+function exportWithoutBorders(callback) {
   const bgImage = canvas.getObjects()[0];
   if (!bgImage) {
-    alert("Aucune image à télécharger !");
+    alert("Aucune image à exporter !");
     return;
   }
 
@@ -215,52 +215,53 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
 
   const tempCanvas = new fabric.Canvas(null, { width, height });
 
+  let objectsToLoad = canvas.getObjects().length;
   canvas.getObjects().forEach((obj) => {
-    obj.clone((cloned) => {
-      cloned.left = (cloned.left || 0) - (bgImage.left || 0);
-      cloned.top = (cloned.top || 0) - (bgImage.top || 0);
-      tempCanvas.add(cloned);
-    });
+    if (obj.type === "image" && obj.getSrc) {
+      fabric.Image.fromURL(obj.getSrc(), (img) => {
+        img.set({
+          left: (obj.left || 0) - (bgImage.left || 0),
+          top: (obj.top || 0) - (bgImage.top || 0),
+          scaleX: obj.scaleX,
+          scaleY: obj.scaleY
+        });
+        tempCanvas.add(img);
+        if (--objectsToLoad === 0) callback(tempCanvas);
+      }, { crossOrigin: "anonymous" });
+    } else {
+      obj.clone((cloned) => {
+        cloned.left = (cloned.left || 0) - (bgImage.left || 0);
+        cloned.top = (cloned.top || 0) - (bgImage.top || 0);
+        tempCanvas.add(cloned);
+        if (--objectsToLoad === 0) callback(tempCanvas);
+      });
+    }
   });
+}
 
-  const dataURL = tempCanvas.toDataURL({ format: "png" });
-
-  const a = document.createElement("a");
-  a.href = dataURL;
-  a.download = "image.png";
-  a.click();
+// 🔹 Télécharger sans marges
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  exportWithoutBorders((tempCanvas) => {
+    const dataURL = tempCanvas.toDataURL({ format: "png" });
+    const a = document.createElement("a");
+    a.href = dataURL;
+    a.download = "image.png";
+    a.click();
+  });
 });
 
 // 🔹 Enregistrer dans Firebase sans marges
 document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
-  const bgImage = canvas.getObjects()[0];
-  if (!bgImage) {
-    alert("Aucune image à enregistrer !");
-    return;
-  }
-
-  const width = bgImage.width * bgImage.scaleX;
-  const height = bgImage.height * bgImage.scaleY;
-
-  const tempCanvas = new fabric.Canvas(null, { width, height });
-
-  canvas.getObjects().forEach((obj) => {
-    obj.clone((cloned) => {
-      cloned.left = (cloned.left || 0) - (bgImage.left || 0);
-      cloned.top = (cloned.top || 0) - (bgImage.top || 0);
-      tempCanvas.add(cloned);
-    });
-  });
-
-  const dataURL = tempCanvas.toDataURL({ format: "png" });
-
-  fetch(dataURL)
-    .then((res) => res.blob())
-    .then((blob) => {
-      const fileRef = ref(storage, filePath || `mediatheque/${Date.now()}.png`);
-      uploadBytes(fileRef, blob).then(() => {
-        alert("Image enregistrée dans Firebase !");
-        window.location.href = "galerie.html";
+  exportWithoutBorders((tempCanvas) => {
+    const dataURL = tempCanvas.toDataURL({ format: "png" });
+    fetch(dataURL)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const fileRef = ref(storage, filePath || `mediatheque/${Date.now()}.png`);
+        uploadBytes(fileRef, blob).then(() => {
+          alert("Image enregistrée dans Firebase !");
+          window.location.href = "galerie.html";
+        });
       });
-    });
+  });
 });
