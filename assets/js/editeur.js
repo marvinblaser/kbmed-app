@@ -141,6 +141,7 @@ function exportCanvas() {
       return;
     }
 
+    // Calculer la zone englobante
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     objects.forEach((obj) => {
       const bounds = obj.getBoundingRect();
@@ -155,6 +156,7 @@ function exportCanvas() {
 
     const tempCanvas = new fabric.Canvas(null, { width: exportWidth, height: exportHeight });
 
+    // Charger tous les objets dans le canvas temporaire
     const promises = objects.map((obj) => {
       return new Promise((res) => {
         if (obj.type === "image" && obj.getSrc) {
@@ -180,6 +182,10 @@ function exportCanvas() {
     });
 
     Promise.all(promises).then(() => {
+      // Conserver l'ordre des calques
+      tempCanvas._objects.sort((a, b) => {
+        return objects.indexOf(a) - objects.indexOf(b);
+      });
       resolve(tempCanvas);
     });
   });
