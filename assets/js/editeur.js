@@ -36,14 +36,11 @@ function resizeCanvasToImage(img) {
   const imgWidth = img.width;
   const imgHeight = img.height;
 
-  // Redimensionner le canvas
   canvas.setWidth(imgWidth);
   canvas.setHeight(imgHeight);
 
-  // Centrer l'image
   img.set({ left: 0, top: 0 });
 
-  // Ajuster le zoom si l'image est trop grande
   const maxWidth = document.querySelector(".main-content").offsetWidth - 20;
   const maxHeight =
     window.innerHeight -
@@ -205,7 +202,7 @@ document.getElementById("cropBtn").addEventListener("click", () => {
   }
 });
 
-// 🔹 Télécharger
+// 🔹 Télécharger sans marges
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const bgImage = canvas.getObjects()[0];
   if (!bgImage) {
@@ -213,14 +210,11 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
     return;
   }
 
-  // Dimensions réelles de l'image
   const width = bgImage.width * bgImage.scaleX;
   const height = bgImage.height * bgImage.scaleY;
 
-  // Créer un canvas temporaire
   const tempCanvas = new fabric.Canvas(null, { width, height });
 
-  // Cloner tous les objets et les repositionner
   canvas.getObjects().forEach((obj) => {
     obj.clone((cloned) => {
       cloned.left = (cloned.left || 0) - (bgImage.left || 0);
@@ -229,19 +223,37 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
     });
   });
 
-  // Exporter le canvas temporaire
   const dataURL = tempCanvas.toDataURL({ format: "png" });
 
-  // Télécharger
   const a = document.createElement("a");
   a.href = dataURL;
   a.download = "image.png";
   a.click();
 });
 
-// 🔹 Enregistrer dans Firebase
+// 🔹 Enregistrer dans Firebase sans marges
 document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
-  const dataURL = canvas.toDataURL({ format: "png" });
+  const bgImage = canvas.getObjects()[0];
+  if (!bgImage) {
+    alert("Aucune image à enregistrer !");
+    return;
+  }
+
+  const width = bgImage.width * bgImage.scaleX;
+  const height = bgImage.height * bgImage.scaleY;
+
+  const tempCanvas = new fabric.Canvas(null, { width, height });
+
+  canvas.getObjects().forEach((obj) => {
+    obj.clone((cloned) => {
+      cloned.left = (cloned.left || 0) - (bgImage.left || 0);
+      cloned.top = (cloned.top || 0) - (bgImage.top || 0);
+      tempCanvas.add(cloned);
+    });
+  });
+
+  const dataURL = tempCanvas.toDataURL({ format: "png" });
+
   fetch(dataURL)
     .then((res) => res.blob())
     .then((blob) => {
