@@ -132,83 +132,53 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
   }
 });
 
-// 🔹 Calculer la zone englobante et exporter
-function exportCanvas() {
-  return new Promise((resolve) => {
-    const objects = canvas.getObjects();
-    if (objects.length === 0) {
-      alert("Aucun contenu à exporter !");
-      return;
-    }
+// 🔹 Export direct du canvas (sans recréer un canvas temporaire)
+function exportCanvasDirect() {
+  const objects = canvas.getObjects();
+  if (objects.length === 0) {
+    alert("Aucun contenu à exporter !");
+    return null;
+  }
 
-    // Calculer la zone englobante
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    objects.forEach((obj) => {
-      const bounds = obj.getBoundingRect();
-      minX = Math.min(minX, bounds.left);
-      minY = Math.min(minY, bounds.top);
-      maxX = Math.max(maxX, bounds.left + bounds.width);
-      maxY = Math.max(maxY, bounds.top + bounds.height);
-    });
+  // Calculer la zone englobante
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  objects.forEach((obj) => {
+    const bounds = obj.getBoundingRect();
+    minX = Math.min(minX, bounds.left);
+    minY = Math.min(minY, bounds.top);
+    maxX = Math.max(maxX, bounds.left + bounds.width);
+    maxY = Math.max(maxY, bounds.top + bounds.height);
+  });
 
-    const exportWidth = maxX - minX;
-    const exportHeight = maxY - minY;
+  const exportWidth = maxX - minX;
+  const exportHeight = maxY - minY;
 
-    const tempCanvas = new fabric.Canvas(null, { width: exportWidth, height: exportHeight });
-
-    // Charger tous les objets dans le canvas temporaire
-    const promises = objects.map((obj) => {
-      return new Promise((res) => {
-        if (obj.type === "image" && obj.getSrc) {
-          fabric.Image.fromURL(obj.getSrc(), (img) => {
-            img.set({
-              left: (obj.left || 0) - minX,
-              top: (obj.top || 0) - minY,
-              scaleX: obj.scaleX,
-              scaleY: obj.scaleY
-            });
-            tempCanvas.add(img);
-            res();
-          }, { crossOrigin: "anonymous" });
-        } else {
-          obj.clone((cloned) => {
-            cloned.left = (cloned.left || 0) - minX;
-            cloned.top = (cloned.top || 0) - minY;
-            tempCanvas.add(cloned);
-            res();
-          });
-        }
-      });
-    });
-
-    Promise.all(promises).then(() => {
-      // Conserver l'ordre des calques
-      tempCanvas._objects.sort((a, b) => {
-        return objects.indexOf(a) - objects.indexOf(b);
-      });
-      resolve(tempCanvas);
-    });
+  // Exporter directement depuis le canvas actuel
+  return canvas.toDataURL({
+    format: "png",
+    left: minX,
+    top: minY,
+    width: exportWidth,
+    height: exportHeight
   });
 }
 
 // 🔹 Télécharger
 document.getElementById("downloadBtn").addEventListener("click", () => {
-  exportCanvas().then((tempCanvas) => {
-    const dataURL = tempCanvas.toDataURL({ format: "png" });
-    const a = document.createElement("a");
-    a.href = dataURL;
-    a.download = "image.png";
-    a.click();
-  });
+  const dataURL = exportCanvasDirect();
+  if (!dataURL) return;
+  const a = document.createElement("a");
+  a.href = dataURL;
+  a.download = "image.png";
+  a.click();
 });
 
 // 🔹 Enregistrer dans Firebase
 document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
-  exportCanvas()
-    .then((tempCanvas) => {
-      const dataURL = tempCanvas.toDataURL({ format: "png" });
-      return fetch(dataURL).then((res) => res.blob());
-    })
+  const dataURL = exportCanvasDirect();
+  if (!dataURL) return;
+  fetch(dataURL)
+    .then((res) => res.blob())
     .then((blob) => {
       const fileRef = ref(storage, filePath || `mediatheque/${Date.now()}.png`);
       return uploadBytes(fileRef, blob);
