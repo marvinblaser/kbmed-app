@@ -202,27 +202,37 @@ document.getElementById("cropBtn").addEventListener("click", () => {
   }
 });
 
-// 🔹 Exporter sans marges avec Promise.all
+// 🔹 Exporter tout le contenu visible (avec ou sans image)
 function exportWithoutBorders() {
   return new Promise((resolve, reject) => {
-    const bgImage = canvas.getObjects()[0];
-    if (!bgImage) {
-      reject("Aucune image à exporter !");
+    const objects = canvas.getObjects();
+    if (objects.length === 0) {
+      reject("Aucun contenu à exporter !");
       return;
     }
 
-    const width = bgImage.width * bgImage.scaleX;
-    const height = bgImage.height * bgImage.scaleY;
+    // Calculer la zone englobante de tous les objets
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    objects.forEach((obj) => {
+      const bounds = obj.getBoundingRect();
+      minX = Math.min(minX, bounds.left);
+      minY = Math.min(minY, bounds.top);
+      maxX = Math.max(maxX, bounds.left + bounds.width);
+      maxY = Math.max(maxY, bounds.top + bounds.height);
+    });
 
-    const tempCanvas = new fabric.Canvas(null, { width, height });
+    const exportWidth = maxX - minX;
+    const exportHeight = maxY - minY;
 
-    const promises = canvas.getObjects().map((obj) => {
+    const tempCanvas = new fabric.Canvas(null, { width: exportWidth, height: exportHeight });
+
+    const promises = objects.map((obj) => {
       return new Promise((res) => {
         if (obj.type === "image" && obj.getSrc) {
           fabric.Image.fromURL(obj.getSrc(), (img) => {
             img.set({
-              left: (obj.left || 0) - (bgImage.left || 0),
-              top: (obj.top || 0) - (bgImage.top || 0),
+              left: (obj.left || 0) - minX,
+              top: (obj.top || 0) - minY,
               scaleX: obj.scaleX,
               scaleY: obj.scaleY
             });
@@ -231,8 +241,8 @@ function exportWithoutBorders() {
           }, { crossOrigin: "anonymous" });
         } else {
           obj.clone((cloned) => {
-            cloned.left = (cloned.left || 0) - (bgImage.left || 0);
-            cloned.top = (cloned.top || 0) - (bgImage.top || 0);
+            cloned.left = (cloned.left || 0) - minX;
+            cloned.top = (cloned.top || 0) - minY;
             tempCanvas.add(cloned);
             res();
           });
@@ -244,7 +254,7 @@ function exportWithoutBorders() {
   });
 }
 
-// 🔹 Télécharger sans marges
+// 🔹 Télécharger
 document.getElementById("downloadBtn").addEventListener("click", () => {
   exportWithoutBorders()
     .then((tempCanvas) => {
@@ -257,7 +267,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
     .catch((err) => alert(err));
 });
 
-// 🔹 Enregistrer dans Firebase sans marges
+// 🔹 Enregistrer dans Firebase
 document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
   exportWithoutBorders()
     .then((tempCanvas) => {
