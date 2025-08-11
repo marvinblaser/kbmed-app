@@ -207,27 +207,30 @@ document.getElementById("cropBtn").addEventListener("click", () => {
 
 // 🔹 Télécharger
 document.getElementById("downloadBtn").addEventListener("click", () => {
-  // Trouver l'image de fond (premier objet du canvas)
   const bgImage = canvas.getObjects()[0];
   if (!bgImage) {
     alert("Aucune image à télécharger !");
     return;
   }
 
-  // Récupérer les dimensions réelles de l'image
-  const left = bgImage.left || 0;
-  const top = bgImage.top || 0;
+  // Dimensions réelles de l'image
   const width = bgImage.width * bgImage.scaleX;
   const height = bgImage.height * bgImage.scaleY;
 
-  // Exporter uniquement la zone de l'image
-  const dataURL = canvas.toDataURL({
-    format: "png",
-    left: left,
-    top: top,
-    width: width,
-    height: height
+  // Créer un canvas temporaire
+  const tempCanvas = new fabric.Canvas(null, { width, height });
+
+  // Cloner tous les objets et les repositionner
+  canvas.getObjects().forEach((obj) => {
+    obj.clone((cloned) => {
+      cloned.left = (cloned.left || 0) - (bgImage.left || 0);
+      cloned.top = (cloned.top || 0) - (bgImage.top || 0);
+      tempCanvas.add(cloned);
+    });
   });
+
+  // Exporter le canvas temporaire
+  const dataURL = tempCanvas.toDataURL({ format: "png" });
 
   // Télécharger
   const a = document.createElement("a");
