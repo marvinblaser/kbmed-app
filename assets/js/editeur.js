@@ -1,6 +1,5 @@
 import { auth, storage } from "./firebase.js";
 import {
-  signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
@@ -13,36 +12,83 @@ const urlParams = new URLSearchParams(window.location.search);
 const filePath = urlParams.get("path");
 
 const canvas = new fabric.Canvas("canvas");
-function resizeCanvas() {
-  const containerWidth = document.querySelector(".main-content").offsetWidth;
-
-  const header = document.querySelector(".main-header");
-  const toolbar = document.querySelector(".toolbar");
-  const footer = document.querySelector(".main-footer");
-
-  const headerHeight = header ? header.offsetHeight : 0;
-  const toolbarHeight = toolbar ? toolbar.offsetHeight : 0;
-  const footerHeight = footer ? footer.offsetHeight : 0;
-
-  const availableHeight = window.innerHeight - headerHeight - toolbarHeight - footerHeight - 40;
-
-  const scale = containerWidth / 800; // largeur originale
-  const zoom = Math.min(scale, availableHeight / 600); // hauteur originale
-
-  canvas.setWidth(containerWidth);
-  canvas.setHeight(600 * zoom);
-  canvas.setZoom(zoom);
-}
-
-window.addEventListener("resize", resizeCanvas);
-
-// Attendre que les composants soient chargés
-setTimeout(resizeCanvas, 300);
 let state = [];
 let mods = 0;
 let cropRect;
 let cropping = false;
 
+// 🔹 Message d'accueil
+function drawWelcomeMessage() {
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#888";
+  ctx.font = "20px Segoe UI";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Glissez-déposez une image ou utilisez les boutons ci-dessus",
+    canvas.width / 2,
+    canvas.height / 2
+  );
+}
+drawWelcomeMessage();
+
+// 🔹 Redimensionner le canvas à la taille de l'image
+function resizeCanvasToImage(img) {
+  const imgWidth = img.width;
+  const imgHeight = img.height;
+
+  // Redimensionner le canvas
+  canvas.setWidth(imgWidth);
+  canvas.setHeight(imgHeight);
+
+  // Centrer l'image
+  img.set({ left: 0, top: 0 });
+
+  // Ajuster le zoom si l'image est trop grande
+  const maxWidth = document.querySelector(".main-content").offsetWidth - 20;
+  const maxHeight =
+    window.innerHeight -
+    document.querySelector(".main-header").offsetHeight -
+    150;
+
+  let zoom = 1;
+  if (imgWidth > maxWidth || imgHeight > maxHeight) {
+    zoom = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+  }
+
+  canvas.setZoom(zoom);
+}
+
+// 🔹 Mettre l'image en arrière-plan
+function setImageAsBackground(img) {
+  img.selectable = false;
+  img.evented = false;
+  resizeCanvasToImage(img);
+  canvas.add(img);
+  canvas.sendToBack(img);
+  saveState();
+}
+
+// 🔹 Sauvegarder l'état
+function saveState() {
+  mods = 0;
+  state.push(JSON.stringify(canvas));
+}
+
+// 🔹 Charger depuis Firebase
+function loadImageFromFirebase() {
+  const fileRef = ref(storage, filePath);
+  getDownloadURL(fileRef).then((url) => {
+    fabric.Image.fromURL(
+      url,
+      (img) => {
+        setImageAsBackground(img);
+      },
+      { crossOrigin: "anonymous" }
+    );
+  });
+}
+
+// 🔹 Authentification
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "login.html";
@@ -51,59 +97,46 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-function saveState() {
-  mods = 0;
-  state.push(JSON.stringify(canvas));
-}
-
-function loadImageFromFirebase() {
-  const fileRef = ref(storage, filePath);
-  getDownloadURL(fileRef).then((url) => {
-    fabric.Image.fromURL(url, (img) => {
-      img.scaleToWidth(800);
-      setImageAsBackground(img);
-    }, { crossOrigin: "anonymous" });
-  });
-}
-
+// 🔹 Import depuis fichier
 document.getElementById("fileInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (f) => {
     fabric.Image.fromURL(f.target.result, (img) => {
-      img.scaleToWidth(800);
       setImageAsBackground(img);
     });
   };
   reader.readAsDataURL(file);
 });
 
+// 🔹 Import depuis caméra
 document.getElementById("cameraInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (f) => {
     fabric.Image.fromURL(f.target.result, (img) => {
-      img.scaleToWidth(800);
       setImageAsBackground(img);
     });
   };
   reader.readAsDataURL(file);
 });
 
+// 🔹 Ajouter texte
 document.getElementById("addTextBtn").addEventListener("click", () => {
   const bgColor = document.getElementById("bgColorPicker").value;
   const text = new fabric.IText("Texte ici", {
     left: 100,
     top: 100,
     fontSize: 20,
-    backgroundColor: bgColor,
+    backgroundColor: bgColor
   });
   canvas.add(text);
   saveState();
 });
 
+// 🔹 Annuler
 document.getElementById("undoBtn").addEventListener("click", () => {
   if (mods < state.length) {
     canvas.clear();
@@ -113,6 +146,7 @@ document.getElementById("undoBtn").addEventListener("click", () => {
   }
 });
 
+// 🔹 Rétablir
 document.getElementById("redoBtn").addEventListener("click", () => {
   if (mods > 0) {
     canvas.clear();
@@ -122,6 +156,7 @@ document.getElementById("redoBtn").addEventListener("click", () => {
   }
 });
 
+// 🔹 Supprimer élément
 document.getElementById("deleteBtn").addEventListener("click", () => {
   const active = canvas.getActiveObjects();
   if (active.length) {
@@ -131,6 +166,7 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
   }
 });
 
+// 🔹 Rogner
 document.getElementById("cropBtn").addEventListener("click", () => {
   if (!cropping) {
     cropRect = new fabric.Rect({
@@ -144,7 +180,7 @@ document.getElementById("cropBtn").addEventListener("click", () => {
       height: 200,
       borderColor: "red",
       cornerColor: "green",
-      hasRotatingPoint: false,
+      hasRotatingPoint: false
     });
     canvas.add(cropRect);
     cropping = true;
@@ -158,20 +194,18 @@ document.getElementById("cropBtn").addEventListener("click", () => {
       left: left,
       top: top,
       width: width,
-      height: height,
+      height: height
     });
 
     fabric.Image.fromURL(cropped, (img) => {
-      canvas.clear();
-      img.scaleToWidth(800);
-      canvas.add(img);
-      saveState();
+      setImageAsBackground(img);
     });
 
     cropping = false;
   }
 });
 
+// 🔹 Télécharger
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const dataURL = canvas.toDataURL({ format: "png" });
   const a = document.createElement("a");
@@ -180,6 +214,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   a.click();
 });
 
+// 🔹 Enregistrer dans Firebase
 document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
   const dataURL = canvas.toDataURL({ format: "png" });
   fetch(dataURL)
@@ -192,23 +227,3 @@ document.getElementById("saveFirebaseBtn").addEventListener("click", () => {
       });
     });
 });
-
-// Message d'accueil dans le canvas vide
-function drawWelcomeMessage() {
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#888";
-  ctx.font = "20px Segoe UI";
-  ctx.textAlign = "center";
-  ctx.fillText("Glissez-déposez une image ou utilisez les boutons ci-dessus", canvas.width / 2, canvas.height / 2);
-}
-
-// Afficher le message au démarrage
-drawWelcomeMessage();
-
-function setImageAsBackground(img) {
-  img.selectable = false; // Empêche de déplacer l'image
-  img.evented = false; // Empêche toute interaction
-  canvas.add(img);
-  canvas.sendToBack(img); // Envoie l'image derrière tout
-  saveState();
-}
