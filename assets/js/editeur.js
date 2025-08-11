@@ -179,7 +179,9 @@ function exportCanvas() {
       });
     });
 
-    Promise.all(promises).then(() => resolve(tempCanvas));
+    Promise.all(promises).then(() => {
+      resolve(tempCanvas);
+    });
   });
 }
 
